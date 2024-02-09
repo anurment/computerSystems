@@ -1,0 +1,91 @@
+# Author: Aleksi Nurmento
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+main:
+#irmovq pino,%rbp
+#irmovq pino,%rsp
+#irmovq $9,%rcx
+#pushq %rcx
+#irmovq $11,%rcx
+#pushq %rcx
+#irmovq $2,%rcx
+#pushq %rcx
+#irmovq $10,%rcx
+#pushq %rcx
+xorq %rcx,%rcx
+
+
+
+
+
+	irmovq $1,%rdx # vakio = 1
+	irmovq $8,%r8 # vakio = 8
+	rrmovq %rsp,%r14 # osoitin -->r14
+	rrmovq %rbp,%rbx # pinon osoite --->rbx
+	subq %r14,%rbx #pinon (osoite - osoitin) / 8 = pituus
+	
+	call jakolasku # lasketaan pinon pituus
+	# pinon pituus = %rax
+	# tarvitaan %rax -1 vertailua
+	subq %rdx,%rax # rax = n-1
+	rrmovq %rax,%r14 # n-1 talteen
+	rrmovq %rsp,%r8 # pinon osoitin talteen
+	
+	max:
+	
+	popq %rbx
+	rrmovq %rbx,%rdi
+	jmp loop1
+	loop1:
+	#addq %r8,%rsp
+	#mrmovq (%rsp),%rcx
+	popq %rcx
+	rrmovq %rdi,%rbx
+	subq %rcx,%rbx
+	#cmovge %rbx,%rdi
+	cmovl %rcx,%rdi
+	#cmovq -8(%rsp),rbx
+	subq %rdx,%rax
+	jne loop1
+	rrmovq %r8,%rsp # palautetaan osoitin pinon päähän
+	#rrmovq %rbx%rdi
+	rrmovq %r14,%rax # palautetaan rax = n-1
+	
+	min:
+	popq %rbx
+	rrmovq %rbx,%rsi
+	jmp loop2
+	loop2:
+	popq %rcx
+	rrmovq %rcx,%r14
+	rrmovq %rsi,%rbx
+	subq %rbx,%rcx
+	cmovl %r14,%rsi
+	subq %rdx,%rax
+	jne loop2
+	rrmovq %rbx,%rsi
+	
+	halt
+	
+
+	
+	
+	
+	
+.pos 0x400
+jakolasku:
+#irmovq $-1,%rcx
+jmp loop
+loop:
+addq %rdx,%rax
+subq %r8,%rbx
+jne loop
+#subq %rdx,%rcx
+#cmovl %rcx,%rax
+
+
+#rrmovq %rsi,%rax
+ret
+
+
+	
+	

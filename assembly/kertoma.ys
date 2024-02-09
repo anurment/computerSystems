@@ -1,0 +1,33 @@
+# Author: Aleksi Nurmento
+# y86-64-assembly program implementing factorial operation.
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+main:
+	irmovq pino,%rsp
+	irmovq pino,%rbp
+	rrmovq %r8,%rcx
+	irmovq $1,%rdx
+	subq %rdx,%rcx
+	rrmovq %rcx,%rdi
+	call kertoma
+	halt
+	
+.pos 0x40
+kertoma:
+jne kertolasku
+ret
+
+kertolasku:
+addq %r8,%r14
+subq %rdx,%rdi
+jne kertolasku
+rrmovq %r14,%r8
+rrmovq %r14,%rax
+xorq %r14,%r14
+subq %rdx,%rcx
+rrmovq %rcx,%rdi
+jmp kertoma
+
+
+.pos 0x400
+pino:
+

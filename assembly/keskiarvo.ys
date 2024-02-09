@@ -1,0 +1,83 @@
+# Author: Aleksi Nurmento
+# y86-64-assembly program for mean calculation.
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+
+main:
+	#irmovq pino,%rsp
+	#irmovq pino,%rbp
+	#irmovq $20,%r14
+	#pushq %r14
+	#irmovq $10,%r14
+	#pushq %r14
+	#irmovq $60,%r14
+	#pushq %r14
+	
+	irmovq $8,%r8     #constant 8
+	irmovq $-1,%rcx # viedaan luvun 1 arvo rekisteriin rbx. rbx toimii silmukka m
+	irmovq $1,%rdx # apumuuttuja
+	#subq %rdx,%rcx
+	rrmovq %rsp,%rsi
+	rrmovq %rbp,%rdi
+	subq %rsi,%rdi
+	
+	
+	call lasku
+	rrmovq %rax,%rsi
+	rrmovq %rdi,%rcx
+	rrmovq %rsi,%rcx
+	call pinosta
+	rrmovq %rcx,%rsi
+	xorq %rax,%rax
+	rrmovq %rsi,%r8
+
+	call lasku
+	#rrmovq %rdi,%rax
+	
+	halt
+
+.pos 0x200
+pinosta:
+rrmovq %rsp,%r14
+addq %r8,%rsp
+jmp ota
+
+ota:
+
+
+
+popq %rax
+addq %rax,%rdi
+subq %rdx,%rsi
+jne ota
+
+rrmovq %r14,%rsp
+
+
+ret
+
+	
+	
+.pos 0x400
+lasku:
+irmovq $-1,%rcx
+jmp loop
+loop:
+addq %rdx,%rax
+addq %rdx,%rcx
+subq %r8,%rdi
+jg loop
+#subq %rdx,%rcx
+cmovl %rcx,%rax
+
+
+#rrmovq %rsi,%rax
+ret
+
+
+
+
+
+
+
+
+

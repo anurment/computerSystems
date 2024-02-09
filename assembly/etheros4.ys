@@ -1,0 +1,125 @@
+.pos 0
+main:
+
+# Author: Aleksi Nurmento
+# y86-64-assembly program implementing the sieve of Eratosthenes. It finds all the prime
+# numbers up to a given limit (register rax on line 23).
+# https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+
+#	%rbp = stack address
+#	%rsp = stack pointer
+
+#	%rax = given integer (MAX) GLOBAL
+#	%rbx = temporary register/variable for given integer (MAX)	LOCAL
+#	%rcx = current number taken from stack LOCAL
+#	%rdx = temporary register/variable for current number
+#	%r14 = square root of MAX
+#	%r8 = constant 8 / 
+#	%rsi = constant 1
+#	%rdi = original pointer address GLOBAL
+
+
+irmovq pino,%rbp		#stack address
+irmovq pino,%rsp		#stack pointer
+#irmovq $10,%rax		#test number
+rrmovq %rax,%rbx		#move MAX to temporary register/variable
+irmovq $1,%rsi			#Constant 1
+xorq %r14,%r14			#r14 = 0
+
+#pinoa = stack numbers (2...MAX)
+
+pinoa:						
+pushq %rbx				#push number (MAX)
+subq %rsi,%rbx			#substract 1 from MAX
+jg pinoa				#loop until rbx - rsi = 0
+rmmovq %r14,(%rsp)		#remove number 1 from stack
+rrmovq %rsp,%rdi		#save stack pointer address
+popq %rcx				#move stackpointer to number first number (2)
+
+
+#squareroot = calculating square root of MAX
+
+squareroot:
+xorq %r14,%r14			#%r14 = 0
+rrmovq %rax,%rbx		#move MAX to temporary register/variable
+popq %rcx				#pop number from stack
+rrmovq %rcx,%rdx		#set number to temporary register for loop
+
+#multiply = loop for multiplication
+
+multiply:				
+addq %rcx,%r14			#add number to result register
+subq %rsi,%rdx			#current number - 1
+jg multiply				#loop until previous calc 0
+subq %r14,%rbx			#test if result of multiplication is >= MAX
+jg squareroot
+rrmovq %rcx,%r14
+
+# now r14 = square root of MAX
+xorq %rbx,%rbx			#%rbx = 0
+xorq %rdx,%rdx			#%rdx = 0
+
+rrmovq %rdi,%rsp		#set pointer back to top
+
+#nextnumber = get next number from stack and remove it's multiplicants.
+
+nextnumber:
+irmovq $8,%r8			#Constant 8
+addq %r8,%rsp 			#move stack pointer down
+rrmovq %rsp,%rdi		#save stack pointer address
+mrmovq (%rsp),%rcx		#pop number
+andq %rcx,%rcx			#test if number = 0
+je nextnumber			#pop new number if TRUE
+subq %r14,%rcx			#test if current number > square root of MAX
+jg end					#jump to end if TRUE
+
+mrmovq (%rsp),%rcx		# pop number again
+xorq %rdx,%rdx			#%rdx = 0
+
+#steps = calculate pointer movenement (movenement = 8 * current number)
+
+steps:
+addq %r8,%rdx			
+subq %rsi,%rcx			
+jg steps				#test if %rcx = 0
+
+xorq %r8,%r8			#%r8 = 0
+
+
+#remove = remove all the factor of current number numbers from stack
+
+remove:
+addq %rdx,%rsp			#move stack pointer
+rrmovq %rsp,%r8			#save stack pointer address
+rrmovq %rbp,%rbx		#save stack address
+
+subq %r8,%rbx			#calculate if (stack pointer address - stack address) <= 0 
+jle pointer				#if TRUE jump to pointer
+xorq %rbx,%rbx			#%rbx = 0
+
+rmmovq %rbx,(%rsp)		#delete number
+jg pointer
+jmp remove				#jump back to remove
+
+#pointer = reset stack pointer address to previously saved value and jump to nextnumber
+
+pointer:
+rrmovq %rdi,%rsp	#reset stack pointer address to previously saved value
+jmp nextnumber		#jump to nextnumber
+
+#end = end program
+
+end:
+halt
+
+
+
+
+
+
+
+
+
+.pos 0x1800
+pino:

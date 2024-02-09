@@ -1,0 +1,31 @@
+# Author: Aleksi Nurmento
+# y86-64-assembly program implementing division operation.
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+main:
+	irmovq pino,%rsp
+	irmovq pino,%rbp
+	irmovq $-1,%rcx # viedaan luvun 1 arvo rekisteriin rbx. rbx toimii silmukka m
+	irmovq $1,%rdx # apumuuttuja
+	#subq %rdx,%rcx
+	call lasku
+	halt
+
+
+.pos 0x80
+lasku:
+addq %rdx,%rax
+addq %rdx,%rcx
+subq %rsi,%rdi
+jge lasku
+#subq %rdx,%rcx
+cmovl %rcx,%rax
+
+
+#rrmovq %rsi,%rax
+ret
+
+
+
+.pos 0x400
+pino:
+

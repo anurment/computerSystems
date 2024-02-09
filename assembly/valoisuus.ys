@@ -1,0 +1,52 @@
+# Author: Aleksi Nurmento
+# y86-64-assembly simulator: https://boginw.github.io/js-y86-64/
+main:
+	irmovq pino,%rsp
+	irmovq pino,%rbp
+	rrmovq %r13,%rdi
+	irmovq $61440,%r8
+	andq %r8,%rdi
+	irmovq $4096,%rsi
+	irmovq $-1,%rcx # viedaan luvun 1 arvo rekisteriin rbx. rbx toimii silmukka m
+	irmovq $1,%rdx # apumuuttuja
+	#subq %rdx,%rcx
+	call lasku
+	irmovq $4095,%r8
+	andq %r8,%r13
+	
+	
+	halt
+
+	
+	
+	
+
+.pos 0x80
+lasku:
+addq %rdx,%r14
+addq %rdx,%rcx
+subq %rsi,%rdi
+jge lasku
+#subq %rdx,%rcx
+cmovl %rcx,%r14
+
+
+#rrmovq %rsi,%rax
+ret
+
+
+
+.pos 0x400
+pino:
+
+#maski1 = 0xF000
+#maski2 = 0xFFF
+# testi 1101000010010010
+#r14 = 1101 = 13 = D
+#r13 = 10010010 = 146 = 92
+
+#1100000011001101
+
+#.pos 0
+#irmovq $53394,%r13
+
